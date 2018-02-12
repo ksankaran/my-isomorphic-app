@@ -3,17 +3,9 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router';
 import App from './components/App';
-import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import reducers from './reducers';
 
 const { CLIENT_ONLY } = process.env;
 const app = express();
-const store = createStore(reducers, {
-  topicsReducer: {
-    items: [ { title: 'Test' } ]
-  }
-})
 
 app.set('view engine', 'ejs');
 app.set('views', 'src/views');
@@ -26,11 +18,9 @@ app.get('*', async (req, res) => {
       CLIENT_ONLY
       ? '' 
       : (
-        <Provider store={store}>
-          <StaticRouter location={req.url} context={context}>
-            <App/>
-          </StaticRouter>
-        </Provider>
+        <StaticRouter location={req.url} context={context}>
+          <App/>
+        </StaticRouter>
       )
     )
   });
