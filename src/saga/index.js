@@ -6,7 +6,9 @@ function* getTopicsFromReddit() {
   try {
     const response = yield fetch('https://www.reddit.com/r/reactjs.json').then(res => res.json());
     const { data: { children }} = response;
-    yield put(updateTopics(children));
+    yield put(updateTopics(children.map(({ data: {url, title} }) => ({
+      data: { url, title }
+    }))));
   } catch(err) {
     // todo: show error
   }
