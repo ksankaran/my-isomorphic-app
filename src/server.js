@@ -3,6 +3,10 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router';
 import App from './components/App';
+import configureStore from './store';
+import appSaga from './saga';
+import { Provider } from 'react-redux';
+import reducers from './reducers';
 
 const { CLIENT_ONLY } = process.env;
 const app = express();
@@ -13,14 +17,22 @@ app.use('/static', express.static('public'));
 
 app.get('*', async (req, res) => {
   const context = {};
+  const store = configureStore({});
+  // run saga sync
+  await store.runSaga(appSaga).done;
+
+  const state = store.getState();
   res.render('layout', {
+    state: JSON.stringify(state),
     content: ReactDOMServer.renderToString(
       CLIENT_ONLY
       ? '' 
       : (
-        <StaticRouter location={req.url} context={context}>
-          <App/>
-        </StaticRouter>
+        <Provider store={store}>
+          <StaticRouter location={req.url} context={context}>
+            <App/>
+          </StaticRouter>
+        </Provider>
       )
     )
   });
